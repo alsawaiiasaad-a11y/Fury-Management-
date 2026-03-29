@@ -9,8 +9,8 @@ async function sendDesignEmbed(channel) {
     // Create the embed
     const embed = new EmbedBuilder()
         .setColor(0x0099FF) // Choose any color
-        .setTitle("Welcome!") // Your embed title
-        .setDescription("This is a stylish embed with a GIF") // Optional description
+        .setTitle("Fury Management System") // Your embed title
+        .setDescription("Click (IN) to start the timer on voice,and you need to click (IN) every 30min") // Optional description
         .setImage('attachment://design.gif') // Display the GIF
         .setFooter({ text: "Your bot name" });
 
@@ -62,7 +62,7 @@ const row = new ActionRowBuilder().addComponents(
 client.on('messageCreate', async (msg) => {
   if (msg.content === '!panel') {
     msg.channel.send({
-      content: 'Click IN when you start assisting, OUT when you stop.',
+      content: '                        ',
       components: [row]
     });
   }
