@@ -1,3 +1,21 @@
+const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
+
+async function sendDesignEmbed(channel) {
+    // Attach the GIF
+    const file = new AttachmentBuilder('./assets/design.gif');
+    
+    // Create the embed
+    const embed = new EmbedBuilder()
+        .setColor(0x0099FF) // Choose any color
+        .setTitle("Welcome!") // Your embed title
+        .setDescription("This is a stylish embed with a GIF") // Optional description
+        .setImage('attachment://design.gif') // Display the GIF
+        .setFooter({ text: "Your bot name" });
+
+    // Send the embed
+    channel.send({ embeds: [embed], files: [file] });
+}
+
 require('dotenv').config();
 const {
   Client,
@@ -122,6 +140,15 @@ setInterval(() => {
 
 client.once('ready', () => {
   console.log(`${client.user.tag} is online!`);
+
+  const channel = client.channels.cache.get("1480131154672615556");
+
+  if (!channel) {
+    console.log("Channel not found!");
+    return;
+  }
+
+  sendDesignEmbed(channel);
 });
 
 client.login(TOKEN);
