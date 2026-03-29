@@ -67,19 +67,31 @@ client.on('messageCreate', async (msg) => {
     });
   }
 
-  if (msg.content === '!leaderboard') {
-    const sorted = Object.entries(data)
-      .sort((a, b) => b[1].total - a[1].total)
-      .slice(0, 10);
+ if (msg.content === '!leaderboard') {
+  const sorted = Object.entries(data)
+    .sort((a, b) => b[1].total - a[1].total)
+    .slice(0, 10);
 
-    let text = '🏆 Leaderboard:\n';
-    for (let i = 0; i < sorted.length; i++) {
+  if (sorted.length === 0) {
+    return msg.channel.send('No leaderboard data yet!');
+  }
+
+  let text = '🏆 Leaderboard:\n';
+  for (let i = 0; i < sorted.length; i++) {
+    let username = 'Unknown';
+    try {
       const user = await client.users.fetch(sorted[i][0]);
-      text += `${i + 1}. ${user.username} - ${Math.floor(sorted[i][1].total / 60)} min\n`;
+      username = user.username;
+    } catch (err) {
+      console.log(`Failed to fetch user ${sorted[i][0]}`, err);
     }
 
-    msg.channel.send(text);
+    const minutes = Math.floor(sorted[i][1].total / 60);
+    text += `${i + 1}. ${username} - ${minutes} min\n`;
   }
+
+  msg.channel.send(text);
+}
 });
 
 // button handler
