@@ -167,23 +167,32 @@ client.once('ready', () => {
   sendDesignEmbed(channel);
 });
 
-client.on('voiceStateUpdate', (oldState, newState) => {
-  const userId = oldState.id;
-
+client.on('voiceStateUpdate', async (oldState, newState) => {
   // ignore bots
   if (oldState.member.user.bot) return;
 
-  // user LEFT voice channel
-  if (oldState.channelId && !newState.channelId) {
-    if (data[userId] && data[userId].active) {
-      data[userId].active = false;
+  const userId = oldState.member.id;
 
-      console.log(`⛔ Auto-stopped timer for ${oldState.member.user.tag}`
-);
+  // Did the user leave a voice channel or leave an assist channel?
+  const leftAssistChannel =
+    oldState.channelId &&
+    ASSIST_CHANNELS.includes(oldState.channelId) &&
+    (!newState.channelId || !ASSIST_CHANNELS.includes(newState.channelId));
 
-      fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
+  if (leftAssistChannel && data[userId] && data[userId].active) {
+    data[userId].active = false;
+    data[userId].lastClick = 0;
+
+    fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
+
+    console.log(`⛔ Auto-stopped timer for ${oldState.member.user.tag}`);
+
+    // Send them a DM saying their timer stopped
+    try {
+      await oldState.member.send('⛔ Your timer has been stopped because you left the assist voice channel.');
+    } catch (err) {
+      console.log(`Failed to send DM to ${oldState.member.user.tag}:`, err);
     }
   }
 });
-
 client.login(TOKEN);
