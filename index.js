@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
 
 async function sendDesignEmbed(channel) {
@@ -16,7 +18,6 @@ async function sendDesignEmbed(channel) {
     channel.send({ embeds: [embed], files: [file] });
 }
 
-require('dotenv').config();
 const {
   Client,
   GatewayIntentBits,
