@@ -60,40 +60,49 @@ const row = new ActionRowBuilder().addComponents(
 
 // send panel command
 client.on('messageCreate', async (msg) => {
+  // Only respond to commands in guilds
+  if (!msg.guild) return;
+
   if (msg.content === '!panel') {
+    // Attach the same GIF as in your startup embed
+    const file = new AttachmentBuilder('./assets/design.gif');
+
+    const embed = new EmbedBuilder()
+      .setColor(0x0099FF)
+      .setTitle("Fury Management System")
+      .setDescription("Click (IN) to start the timer on voice, and you need to click (IN) every 30min")
+      .setImage('attachment://design.gif')
+      .setFooter({ text: "Fury RP" });
+
+    // Send the embed + buttons
     msg.channel.send({
-      content: '                        ',
+      embeds: [embed],
+      files: [file],
       components: [row]
     });
   }
 
- if (msg.content === '!leaderboard') {
-  const sorted = Object.entries(data)
-    .sort((a, b) => b[1].total - a[1].total)
-    .slice(0, 10);
+  // Leaderboard (keep the fixed version)
+  if (msg.content === '!leaderboard') {
+    const sorted = Object.entries(data)
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 10);
 
-  if (sorted.length === 0) {
-    return msg.channel.send('No leaderboard data yet!');
-  }
+    if (sorted.length === 0) return msg.channel.send('No leaderboard data yet!');
 
-  let text = '🏆 Leaderboard:\n';
-  for (let i = 0; i < sorted.length; i++) {
-    let username = 'Unknown';
-    try {
-      const user = await client.users.fetch(sorted[i][0]);
-      username = user.username;
-    } catch (err) {
-      console.log(`Failed to fetch user ${sorted[i][0]}`, err);
+    let text = '🏆 Leaderboard:\n';
+    for (let i = 0; i < sorted.length; i++) {
+      let username = 'Unknown';
+      try {
+        const user = await client.users.fetch(sorted[i][0]);
+        username = user.username;
+      } catch {}
+      text += `${i + 1}. ${username} - ${Math.floor(sorted[i][1].total / 60)} min\n`;
     }
 
-    const minutes = Math.floor(sorted[i][1].total / 60);
-    text += `${i + 1}. ${username} - ${minutes} min\n`;
+    msg.channel.send(text);
   }
-
-  msg.channel.send(text);
-}
 });
-
 // button handler
 client.on(Events.InteractionCreate, async interaction => {
   if (!interaction.isButton()) return;
