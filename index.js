@@ -111,9 +111,12 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 
   if (interaction.customId === 'out') {
-    data[userId].active = false;
-    interaction.reply({ content: '⛔ Timer stopped!', ephemeral: true });
-  }
+  data[userId].active = false;
+  data[userId].lastClick = 0;
+
+  interaction.reply({ content: '⛔ Timer stopped!', ephemeral: true });
+}
+  
 
   fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
 });
@@ -150,6 +153,25 @@ client.once('ready', () => {
   }
 
   sendDesignEmbed(channel);
+});
+
+client.on('voiceStateUpdate', (oldState, newState) => {
+  const userId = oldState.id;
+
+  // ignore bots
+  if (oldState.member.user.bot) return;
+
+  // user LEFT voice channel
+  if (oldState.channelId && !newState.channelId) {
+    if (data[userId] && data[userId].active) {
+      data[userId].active = false;
+
+      console.log(`⛔ Auto-stopped timer for ${oldState.member.user.tag}`
+);
+
+      fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
+    }
+  }
 });
 
 client.login(TOKEN);
